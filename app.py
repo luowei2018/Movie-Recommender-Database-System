@@ -35,10 +35,17 @@ def get_movies(Movie_id):
         abort(404)
     return post
 
-def get_search_result(input, releaseyear, rating):
+def get_search_result(input, releaseyear, rating, operation):
     conn = get_db_connection()
     if releaseyear and rating:
-        posts = conn.execute('SELECT * from Movies WHERE (Movie_Name LIKE ? OR Stars LIKE ?) AND ReleaseYear > ? AND Rating > ?', ('%' + input + '%', '%' + input + '%', releaseyear, rating)).fetchall()
+        if operation == 'and':
+            posts = conn.execute('SELECT * from Movies WHERE (Movie_Name LIKE ? OR Stars LIKE ?) AND ReleaseYear > ? AND Rating > ?', ('%' + input + '%', '%' + input + '%', releaseyear, rating)).fetchall()
+        if operation == 'or':
+            posts = conn.execute(
+            """SELECT * from Movies WHERE (Movie_Name LIKE ? OR Stars LIKE ?) AND ReleaseYear > ?
+            UNION
+            SELECT * from Movies WHERE (Movie_Name LIKE ? OR Stars LIKE ?) AND Rating > ?
+            """, ('%' + input + '%', '%' + input + '%', releaseyear, '%' + input + '%', '%' + input + '%', rating)).fetchall()
     elif releaseyear:
         posts = conn.execute('SELECT * from Movies WHERE (Movie_Name LIKE ? OR Stars LIKE ?) AND ReleaseYear > ?', ('%' + input + '%', '%' + input + '%', releaseyear)).fetchall()
     elif rating:
@@ -63,19 +70,26 @@ def edit(id):
     movie = get_post(id)
 
     if request.method == 'POST':
-        title = request.form['title']
+        rating = request.form['title']
         content = request.form['content']
 
-        if not title:
-            flash('rating is required!')
-        else:
-            conn = get_db_connection()
-            conn.execute('UPDATE Favorite_Movies SET myRatings = ?, myComment = ?'
-                         ' WHERE id = ?',
-                         (title, content, id))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('index'))
+        if rating:
+            try:
+                float(rating)
+            except:
+                flash('please input a number')
+                return render_template('edit.html', movie = movie)
+            rating = float(rating)
+            if (rating > 10) or (rating < 0):
+                flash('please input a number between 0 and 10')
+                return render_template('edit.html', movie = movie)
+        conn = get_db_connection()
+        conn.execute('UPDATE Favorite_Movies SET myRatings = ?, myComment = ?'
+                     ' WHERE id = ?',
+                     (rating, content, id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('index'))
 
     return render_template('edit.html', movie = movie)
 
@@ -85,12 +99,29 @@ def search():
         input = request.form['input']
         releaseyear = request.form['releaseyear']
         rating = request.form['rating']
+        operation = request.form.get('operation')
 
         if not input:
             flash('something is required!')
-        else:
-            movies = get_search_result(input, releaseyear, rating)
-            return render_template('search.html', movies = movies)
+            return render_template('search.html')
+        if releaseyear:
+            try:
+                int(releaseyear)
+            except:
+                flash('for release year please input a integer')
+                return render_template('search.html')
+        if rating:
+            try:
+                float(rating)
+            except:
+                flash('for rating please input a number')
+                return render_template('search.html')
+            rating = float(rating)
+            if (rating > 10) or (rating < 0):
+                flash('for rating please input a number between 0 and 10')
+                return render_template('search.html')
+        movies = get_search_result(input, releaseyear, rating, operation)
+        return render_template('search.html', movies = movies)
     return render_template('search.html')
 
 @app.route('/<int:id>/delete', methods=('POST',))
@@ -107,16 +138,15 @@ def delete(id):
 def addToFavorite(Movie_id):
     movie = get_movies(Movie_id)
     conn = get_db_connection()
-    result = conn.execute('SELECT Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary, Director from Movies WHERE Movie_id = ?', (Movie_id,)).fetchall()
+    result = conn.execute('SELECT Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary from Movies WHERE Movie_id = ?', (Movie_id,)).fetchall()
     Movie_Name = result[0][0]
     Stars = result[0][1]
     ReleaseYear = result[0][2]
     Rating = result[0][3]
     Genres = result[0][4]
     Summary = result[0][5]
-    Director = result[0][6]
-    conn.execute('INSERT INTO Favorite_Movies (User_id, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary, Director) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                 (2, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary, Director))
+    conn.execute('INSERT INTO Favorite_Movies (User_id, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                 (2, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary))
     conn.commit()
     conn.close()
     flash('"{}" was successfully added!'.format(Movie_Name))

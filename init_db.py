@@ -25,8 +25,8 @@ cur.execute("INSERT INTO Movies (Movie_Name, Stars, ReleaseYear, Rating, Genres,
 cur.execute("INSERT INTO Users (Email, User_Name) VALUES (?, ?)",
             ('emilylingjy@gmail.com', 'jiayi ling')
             )
-cur.execute("INSERT INTO Favorite_Movies (User_id, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary, Director) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (1, 'Goodfellas', 'Robert De Niro, Ray Liotta, Joe Pesci', 1990, 8.7, 'Biography, Crime, Drama', 'A meek Hobbit from the Shire and eight companions set out on a journey to destroy the powerful One Ring and save Middle-earth from the Dark Lord Sauron.', 'Martin Scorsese')
+cur.execute("INSERT INTO Favorite_Movies (User_id, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (1, 'Goodfellas', 'Robert De Niro, Ray Liotta, Joe Pesci', 1990, 8.7, 'Biography, Crime, Drama', 'A meek Hobbit from the Shire and eight companions set out on a journey to destroy the powerful One Ring and save Middle-earth from the Dark Lord Sauron.')
             )
 connection.commit()
 connection.close()

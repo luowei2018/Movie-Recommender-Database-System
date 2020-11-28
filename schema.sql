@@ -22,8 +22,7 @@ CREATE TABLE Favorite_Movies (
     ReleaseYear INTEGER,
     Rating REAL,
     Genres VARCHAR,
-    Summary VARCHAR,
-    Director VARCHAR
+    Summary VARCHAR
 );
 
 CREATE TABLE Movies (
@@ -33,8 +32,7 @@ CREATE TABLE Movies (
     ReleaseYear INTEGER,
     Rating REAL,
     Genres VARCHAR,
-    Summary VARCHAR,
-    Director VARCHAR
+    Summary VARCHAR
 );
 
 CREATE TABLE Users (
@@ -42,4 +40,3 @@ CREATE TABLE Users (
     Email VARCHAR NOT NULL,
     User_Name VARCHAR NOT NULL
 );
-

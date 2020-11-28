@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Search for more movies! {% endblock %}</h1>
+    <form method="post">
+        <div class="form-group">
+            <input type="text" name="input" placeholder="Input title or content to search"
+                   class="form-control"
+                   value="{{ request.form['input']}}">
+            </input>
+        </div>
+        <hr>
+        <h4><span class="badge badge-dark">advance:</span></h4>
+        <div class="form-group">
+          <p>I want the rating greater than: (0 to 10)</p>
+            <input type="real" name="rating" placeholder="please input a number"
+                   class="form-control"
+                   value="{{ request.form['rating']}}">
+            </input>
+        </div>
+        <script>
+        document.write({{current}});
+        </script>
+        <select id="operation" name="operation" selected = {{current}}>
+          <option value="or">OR</option>
+          <option value="and">AND</option>
+        </select>
+
+
+        <div class="form-group">
+            <p>I want the release year greater than:</p>
+            <input type="integer" name="releaseyear" placeholder="please input an integer"
+                   class="form-control"
+                   value="{{ request.form['releaseyear']}}">
+            </input>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    <hr>
+
+   {% for movie in movies %}
+        <a href="#">
+            <h2>{{ movie['Movie_Name'] }}</h2>
+        </a>
+        <span class="badge badge-primary">{{ movie['rating'] }}</span>
+            <span class="badge badge-warning">{{movie['Stars']}}</span>
+            <span class="badge badge-dark">{{movie['ReleaseYear']}}</span>
+        <form action="{{ url_for('addToFavorite', Movie_id=movie['Movie_id']) }}" method="POST">
+          <div class = "form-group">
+            <input type="submit" value="Add to my favorite movies"
+                    class="btn btn-danger btn-sm"
+                    onclick="trying to add">
+          </div>
+        </form>
+        <hr>
+    {% endfor %}
+{% endblock %}
