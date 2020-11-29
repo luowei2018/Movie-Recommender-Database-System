@@ -1,4 +1,6 @@
 import sqlite3, sys
+import pymongo
+import pandas as pd
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 import db
@@ -229,3 +231,12 @@ def addToFavorite(Movie_id):
     conn.close()
     flash('"{}" was successfully added!'.format(Movie_Name))
     return redirect(url_for('index'))
+
+def search_mongo():
+    CONNECTION_STRING = "mongodb+srv://luowei:1124@cluster0.hckie.mongodb.net/users?retryWrites=true&w=majority"
+    client = pymongo.MongoClient(CONNECTION_STRING)
+    db = client.users
+    all_movies = db.users_flask.find()
+    return pd.DataFrame(all_movies).values
+
+print(search_mongo())
