@@ -14,7 +14,7 @@ def test():
     db = client.users
     print(db.users_flask.count_documents({}))
     try:
-        db.users_flask.insert_one({"name": "John"})
+        db.users_flask.delete_many({})
     except:
         print("something is wrong")
     return "Connected to the data base!"
