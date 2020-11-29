@@ -26,6 +26,7 @@ def index():
     if op.userid is 0:
         return redirect(url_for('login'))
     conn = get_db_connection()
+    print(op.userid, file=sys.stderr)
     posts = conn.execute('SELECT * FROM Favorite_Movies WHERE User_id = ?', (op.userid,)).fetchall()
     conn.close()
     return render_template('index.html', posts=posts)
@@ -67,7 +68,9 @@ def createUser():
             flash('please input a username')
             return render_template('login.html')
         conn = get_db_connection()
-        op.userid = conn.execute('INSERT INTO Users (Email, User_Name) VALUES(?, ?)', (email, username, )).fetchall()
+        conn.execute('INSERT INTO Users (Email, User_Name) VALUES(?, ?)', (email, username, ))
+        op.userid = conn.execute('SELECT User_id FROM Users WHERE Email = ? AND User_Name = ?', (email, username, )).fetchone()[0]
+        print(op.userid, file=sys.stderr)
         conn.commit()
         conn.close()
         return redirect(url_for('index'))
