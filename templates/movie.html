@@ -1,16 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ post['Movie_Name'] }} {% endblock %}</h2>
-    <span class="badge badge-warning">{{ post['Rating'] }}</span>
-    <span class="badge badge-secondary">{{ post['ReleaseYear'] }}</span>
+    <h2>{% block title %} {{ movie['Movie_Name'] }} {% endblock %}</h2>
+    <span class="badge badge-warning">{{ movie['Rating'] }}</span>
+    <span class="badge badge-secondary">{{ movie['ReleaseYear'] }}</span>
     <hr>
     <h4><span class="badge badge-dark">Summary: </span></h4>
-    <p>{{ post['summary'] }}</p>
-    <hr>
-    <h4><span class="badge badge-dark">my ratings:</span></h4>
-    <h1><span class="badge badge-danger">{{ post['myRatings'] }}</span></h1>
-    <hr>
-    <h4><span class="badge badge-dark">My Comment: </span></h4>
-    <p>{{ post['myComment'] }}</p>
+    <p>{{ movie['summary'] }}</p>
 {% endblock %}

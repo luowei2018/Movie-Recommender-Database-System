@@ -27,9 +27,9 @@ def get_post(post_id):
         abort(404)
     return post
 
-def get_movies(Movie_id):
+def get_movies(Moviepost_id):
     conn = get_db_connection()
-    post = conn.execute('SELECT * from Movies WHERE Movie_id = ?', (Movie_id,)).fetchall()
+    post = conn.execute('SELECT * from Movies WHERE Movie_id = ?', (Moviepost_id,)).fetchone()
     conn.close()
     if post is None:
         abort(404)
@@ -60,10 +60,10 @@ def post(post_id):
     post = get_post(post_id)
     return render_template('post.html', post=post)
 
-@app.route('/movies/<int:Movie_id>')
-def movies(Movie_id):
-    post = get_movies(Movie_id)
-    return render_template('movie.html', post=post)
+@app.route('/movies/<int:Moviepost_id>')
+def movies(Moviepost_id):
+    movie = get_movies(Moviepost_id)
+    return render_template('movie.html', movie=movie)
 
 @app.route('/<int:id>/edit', methods=('GET', 'POST'))
 def edit(id):

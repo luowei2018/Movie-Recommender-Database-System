@@ -41,12 +41,13 @@
     <hr>
 
    {% for movie in movies %}
-        <a href="#">
+        <a href="{{ url_for('movies', Moviepost_id=movie['Movie_id']) }}">
             <h2>{{ movie['Movie_Name'] }}</h2>
         </a>
         <span class="badge badge-primary">{{ movie['rating'] }}</span>
             <span class="badge badge-warning">{{movie['Stars']}}</span>
             <span class="badge badge-dark">{{movie['ReleaseYear']}}</span>
+            <span class="badge badge-dark">{{movie['Movie_id']}}</span>
         <form action="{{ url_for('addToFavorite', Movie_id=movie['Movie_id']) }}" method="POST">
           <div class = "form-group">
             <input type="submit" value="Add to my favorite movies"
