@@ -5,6 +5,13 @@
     <span class="badge badge-warning">{{ movie['Rating'] }}</span>
     <span class="badge badge-secondary">{{ movie['ReleaseYear'] }}</span>
     <span class="badge badge-success">{{ movie['Genres'] }}</span>
+    <form action="{{ url_for('addToFavorite', Movie_id=movie['Movie_id']) }}" method="POST">
+      <div class = "form-group" align = "right">
+        <input type="submit" value="Add to my favorite movies"
+                class="btn btn-danger btn-sm"
+                onclick="trying to add">
+      </div>
+    </form>
     <hr>
     <h4><span class="badge badge-dark">Stars: </span></h4>
     <p>{{ movie['stars'] }}</p>
