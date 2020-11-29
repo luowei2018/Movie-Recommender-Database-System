@@ -100,6 +100,18 @@ def get_movies(Moviepost_id):
         abort(404)
     return post
 
+def get_similar_movies(Moviesid):
+    conn = get_db_connection()
+    similarMoviesids = [1, 2, 3, 4, 5]
+    # similarMoviesids = get_similar_moviesids(Moviesid)
+    similarMovies = []
+    for id in similarMoviesids:
+        similarMovies.append(conn.execute('SELECT * from Movies WHERE Movie_id = ?', (id,)).fetchone())
+    conn.close()
+    if similarMovies is None:
+        abort(404)
+    return similarMovies
+
 def get_search_result(input, releaseyear, rating, operation):
     conn = get_db_connection()
     if releaseyear and rating:
@@ -128,7 +140,8 @@ def post(post_id):
 @app.route('/movies/<int:Moviepost_id>')
 def movies(Moviepost_id):
     movie = get_movies(Moviepost_id)
-    return render_template('movie.html', movie=movie)
+    similarMovies = get_similar_movies(Moviepost_id)
+    return render_template('movie.html', movie=movie, similarMovies = similarMovies)
 
 @app.route('/<int:id>/edit', methods=('GET', 'POST'))
 def edit(id):
@@ -201,6 +214,8 @@ def delete(id):
 
 @app.route('/<int:Movie_id>/add', methods=('POST',))
 def addToFavorite(Movie_id):
+    if op.userid is 0:
+        return redirect(url_for('login'))
     movie = get_movies(Movie_id)
     conn = get_db_connection()
     result = conn.execute('SELECT Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary from Movies WHERE Movie_id = ?', (Movie_id,)).fetchall()

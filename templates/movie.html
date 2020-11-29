@@ -19,4 +19,35 @@
     <p>{{ movie['Director'] }}</p>
     <h4><span class="badge badge-dark">Summary: </span></h4>
     <p>{{ movie['summary'] }}</p>
+
+    <h4><span class="badge badge-dark">Similar Movies: </span></h4>
+    <style>
+    div.scrollmenu {
+      background-color: white;
+      overflow: auto;
+      white-space: nowrap;
+    }
+
+    div.scrollmenu a {
+      display: inline-block;
+      color: black;
+      text-align: center;
+      padding: 14px;
+      text-decoration: none;
+    }
+
+    div.scrollmenu a:hover {
+      background-color: #52E0BD;
+      color: #3A9981;
+    }
+    </style>
+    <hr>
+    <div class="scrollmenu">
+      {% for movie in similarMovies %}
+           <a href="{{ url_for('movies', Moviepost_id=movie['Movie_id']) }}">
+               <h3>{{ movie['Movie_Name'] }}</h3>
+           </a>
+       {% endfor %}
+    </div>
+     <hr>
 {% endblock %}
