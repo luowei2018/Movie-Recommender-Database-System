@@ -2,21 +2,77 @@ import sqlite3, sys
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your secret key'
+# nonlocal userid
+# userid = 0
+class Operations():
+    def __init__(self):
+        self.userid = 0
+op = Operations()
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
-
 @app.route('/')
 def index():
+    print(op.userid, file=sys.stderr)
+    if op.userid is 0:
+        return redirect(url_for('login'))
     conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM Favorite_Movies').fetchall()
+    posts = conn.execute('SELECT * FROM Favorite_Movies WHERE User_id = ?', (op.userid,)).fetchall()
     conn.close()
     return render_template('index.html', posts=posts)
+
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        username = request.form['username']
+
+        if email is None:
+            flash('please input a email')
+            return render_template('login.html')
+        if username is None:
+            flash('please input a username')
+            return render_template('login.html')
+        conn = get_db_connection()
+        try:
+            op.userid = conn.execute('SELECT User_id FROM Users WHERE Email = ? AND User_Name = ?', (email, username, )).fetchone()[0]
+        except:
+            flash('Wrong Credentials')
+            return render_template('login.html')
+        op.userid = conn.execute('SELECT User_id FROM Users WHERE Email = ? AND User_Name = ?', (email, username, )).fetchone()[0]
+        # print(op.userid, file=sys.stderr)
+        conn.close()
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+@app.route('/createUser', methods=('GET', 'POST'))
+def createUser():
+    if request.method == 'POST':
+        email = request.form['email']
+        username = request.form['username']
+
+        if email is None:
+            flash('please input a email')
+            return render_template('login.html')
+        if username is None:
+            flash('please input a username')
+            return render_template('login.html')
+        conn = get_db_connection()
+        op.userid = conn.execute('INSERT INTO Users (Email, User_Name) VALUES(?, ?)', (email, username, )).fetchall()
+        conn.commit()
+        conn.close()
+        return redirect(url_for('index'))
+    return render_template('createUser.html')
+
+@app.route('/logout', methods=('GET', 'POST'))
+def logout():
+    op.userid = 0
+    return redirect(url_for('index'))
 
 def get_post(post_id):
     conn = get_db_connection()
@@ -146,7 +202,7 @@ def addToFavorite(Movie_id):
     Genres = result[0][4]
     Summary = result[0][5]
     conn.execute('INSERT INTO Favorite_Movies (User_id, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                 (2, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary))
+                 (op.userid, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary))
     conn.commit()
     conn.close()
     flash('"{}" was successfully added!'.format(Movie_Name))

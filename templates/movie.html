@@ -4,7 +4,12 @@
     <h2>{% block title %} {{ movie['Movie_Name'] }} {% endblock %}</h2>
     <span class="badge badge-warning">{{ movie['Rating'] }}</span>
     <span class="badge badge-secondary">{{ movie['ReleaseYear'] }}</span>
+    <span class="badge badge-success">{{ movie['Genres'] }}</span>
     <hr>
+    <h4><span class="badge badge-dark">Stars: </span></h4>
+    <p>{{ movie['stars'] }}</p>
+    <h4><span class="badge badge-dark">Director: </span></h4>
+    <p>{{ movie['Director'] }}</p>
     <h4><span class="badge badge-dark">Summary: </span></h4>
     <p>{{ movie['summary'] }}</p>
 {% endblock %}
