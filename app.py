@@ -239,4 +239,4 @@ def search_mongo():
     all_movies = db.users_flask.find()
     return pd.DataFrame(all_movies).values
 
-print(search_mongo())
+# print(search_mongo())
