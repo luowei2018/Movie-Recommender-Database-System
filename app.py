@@ -5,8 +5,7 @@ import db
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
-# nonlocal userid
-# userid = 0
+
 class Operations():
     def __init__(self):
         self.userid = 0
@@ -227,5 +226,5 @@ def addToFavorite(Movie_id):
                  (op.userid, Movie_Name, Stars, ReleaseYear, Rating, Genres, Summary))
     conn.commit()
     conn.close()
-    flash('"{}" was successfully added!'.format(Movie_Name))
+    flash('"{}" was successfully added!'.format(Movie_Name), "success")
     return redirect(url_for('index'))
