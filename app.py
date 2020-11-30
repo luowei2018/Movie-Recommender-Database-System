@@ -4,15 +4,52 @@ import pandas as pd
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 import db
+import sklearn
+import nltk
+# nltk.download('stopwords')
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import linear_kernel
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 # nonlocal userid
 # userid = 0
+
+class Recommendation():
+
+    def __init__(self):
+        # stopwords_list = stopwords.words('english')
+        vectorizer = TfidfVectorizer(analyzer = 'word')
+        self.movies = self.search_mongo()
+        tfidf_matrix = vectorizer.fit_transform(self.movies['summary'])
+        # tfidf_feature_name = vectorizer.get_feature_names()
+        self.cosine_similarity = linear_kernel(tfidf_matrix, tfidf_matrix)
+        self.movies = self.movies.reset_index(drop = True)
+        self.indices = pd.Series(self.movies['summary'].index)  
+
+    def search_mongo(self):
+        CONNECTION_STRING = "mongodb+srv://luowei:1124@cluster0.hckie.mongodb.net/users?retryWrites=true&w=majority"
+        client = pymongo.MongoClient(CONNECTION_STRING)
+        db = client.users
+        all_movies = db.users_flask.find()
+        return pd.DataFrame(all_movies)
+
+    def get_similar_moviesids(self, index, method):
+        id_ = self.indices[index]
+        similarity_scores = list(enumerate(method[id_]))
+        similarity_scores.sort(key = lambda x: x[1], reverse = True)
+        similarity_scores = similarity_scores[1:6]
+        movies_index = [i[0] for i in similarity_scores]
+        return movies_index
+
 class Operations():
     def __init__(self):
         self.userid = 0
+
 op = Operations()
+rec = Recommendation()
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -102,8 +139,10 @@ def get_movies(Moviepost_id):
 
 def get_similar_movies(Moviesid):
     conn = get_db_connection()
-    similarMoviesids = [1, 2, 3, 4, 5]
+    # similarMoviesids = [1, 2, 3, 4, 5]
     # similarMoviesids = get_similar_moviesids(Moviesid)
+    similarMoviesids = rec.get_similar_moviesids(Moviesid, rec.cosine_similarity)
+
     similarMovies = []
     for id in similarMoviesids:
         similarMovies.append(conn.execute('SELECT * from Movies WHERE Movie_id = ?', (id,)).fetchone())
@@ -232,11 +271,6 @@ def addToFavorite(Movie_id):
     flash('"{}" was successfully added!'.format(Movie_Name))
     return redirect(url_for('index'))
 
-def search_mongo():
-    CONNECTION_STRING = "mongodb+srv://luowei:1124@cluster0.hckie.mongodb.net/users?retryWrites=true&w=majority"
-    client = pymongo.MongoClient(CONNECTION_STRING)
-    db = client.users
-    all_movies = db.users_flask.find()
-    return pd.DataFrame(all_movies).values
+
 
 # print(search_mongo())
