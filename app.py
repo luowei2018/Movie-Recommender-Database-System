@@ -59,13 +59,12 @@ def get_db_connection():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+
 @app.route('/')
 def index():
-    print(op.userid, file=sys.stderr)
     if op.userid is 0:
         return redirect(url_for('login'))
     conn = get_db_connection()
-    print(op.userid, file=sys.stderr)
     posts = conn.execute('SELECT * FROM Favorite_Movies WHERE User_id = ?', (op.userid,)).fetchall()
     conn.close()
     return render_template('index.html', posts=posts)
@@ -93,23 +92,38 @@ def login():
         conn.close()
         return redirect(url_for('index'))
     return render_template('login.html')
+@app.route('/animals', methods=('POST', ))
+def animals():
+    if op.userid is 0:
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    print(op.userid, file=sys.stderr)
+    pet = conn.execute('SELECT Favorite_Pet FROM Pet WHERE User_id = ?', (op.userid, )).fetchone()[0]
+    print(pet, file=sys.stderr)
+    movies = conn.execute('SELECT * FROM Pet NATURAL JOIN Favorite_Movies WHERE Favorite_Pet = ?', (pet, )).fetchall()
+    return render_template('animals.html', movies = movies)
 
 @app.route('/createUser', methods=('GET', 'POST'))
 def createUser():
     if request.method == 'POST':
         email = request.form['email']
         username = request.form['username']
+        pet = request.form.get('pet')
 
-        if email is None:
+        if not email:
             flash('please input a email')
-            return render_template('login.html')
-        if username is None:
+            return render_template('createUser.html')
+        if not username:
             flash('please input a username')
-            return render_template('login.html')
+            return render_template('createUser.html')
+        if not pet:
+            flash('please select your favorite animal')
+            return render_template('createUser.html')
         conn = get_db_connection()
         conn.execute('INSERT INTO Users (Email, User_Name) VALUES(?, ?)', (email, username, ))
         op.userid = conn.execute('SELECT User_id FROM Users WHERE Email = ? AND User_Name = ?', (email, username, )).fetchone()[0]
         print(op.userid, file=sys.stderr)
+        conn.execute('INSERT INTO Pet (User_id, Favorite_Pet) VALUES(?, ?)', (op.userid, pet, ))
         conn.commit()
         conn.close()
         return redirect(url_for('index'))
