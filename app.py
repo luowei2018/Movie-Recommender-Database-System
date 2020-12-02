@@ -285,6 +285,8 @@ def addToFavorite(Movie_id):
     flash('"{}" was successfully added!'.format(Movie_Name), "success")
     return redirect(url_for('index'))
 
-
+if __name__ == "__main__":
+    app.debug = True
+    app.run()
 
 # print(search_mongo())
