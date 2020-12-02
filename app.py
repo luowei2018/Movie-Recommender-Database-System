@@ -5,9 +5,9 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 import db
 import sklearn
-import nltk
-# nltk.download('stopwords')
-from nltk.corpus import stopwords
+# import nltk
+# # nltk.download('stopwords')
+# from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import linear_kernel
