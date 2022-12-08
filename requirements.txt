@@ -4,7 +4,7 @@ azure-cognitiveservices-search-entitysearch==2.0.0
 azure-cognitiveservices-search-websearch==2.0.0
 azure-common==1.1.25
 azure-core==1.5.0
-certifi==2020.11.8
+certifi==2022.12.7
 cffi==1.14.0
 chardet==3.0.4
 click==7.1.2
